@@ -440,6 +440,7 @@ footer { background: var(--navy); color: rgba(255,255,255,0.5); padding: 4rem 5%
     <li><a href="#specialties">Specialties</a></li>
     <li><a href="#testimonials">Reviews</a></li>
     <li><a href="#for-providers">For providers</a></li>
+    <li><a href="calendar.html">My Calendar</a></li>
   </ul>
   <div class="nav-actions">
     <a href="login.html" class="btn-outline">Log in</a>
@@ -571,6 +572,15 @@ footer { background: var(--navy); color: rgba(255,255,255,0.5); padding: 4rem 5%
   </div>
 
   <div class="search-results" id="search-results"></div>
+
+  <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:center;position:relative;z-index:1;animation:fadeUp 0.8s ease 0.5s both;">
+    <a href="calendar.html" id="cal-hero-btn" style="display:inline-flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-pill);padding:0.6rem 1.4rem;font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:600;color:var(--navy);text-decoration:none;transition:all 0.2s;box-shadow:var(--shadow-sm);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>
+      My Calendar
+    </a>
+    <span style="font-size:0.78rem;color:var(--slate-light);">Track all your health appointments in one place</span>
+  </div>
+
 </section>
 
 <!-- STATS -->
@@ -870,6 +880,9 @@ function showResults(query) {
 document.getElementById('search-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') doSearch();
 });
+
+document.getElementById('cal-hero-btn').addEventListener('mouseover', function(){ this.style.borderColor='#0D9488'; this.style.color='#0D9488'; this.style.transform='translateY(-1px)'; });
+document.getElementById('cal-hero-btn').addEventListener('mouseout', function(){ this.style.borderColor=''; this.style.color=''; this.style.transform=''; });
 
 window.addEventListener('scroll', () => {
   document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
