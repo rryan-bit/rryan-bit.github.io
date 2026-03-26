@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Healthmate — My Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --teal: #0D9488;
+  --teal-light: #14B8A6;
+  --teal-pale: #CCFBF1;
+  --teal-dark: #0F766E;
+  --navy: #0C1F3F;
+  --navy-mid: #1E3A5F;
+  --slate: #64748B;
+  --slate-light: #94A3B8;
+  --white: #FFFFFF;
+  --off-white: #F8FAFC;
+  --border: #E2E8F0;
+  --shadow-sm: 0 1px 3px rgba(12,31,63,0.08);
+  --shadow-md: 0 4px 16px rgba(12,31,63,0.10);
+  --shadow-lg: 0 12px 40px rgba(12,31,63,0.16);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--off-white);
+  color: var(--navy);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5%; height: 68px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 9px;
+  text-decoration: none; font-size: 1.2rem; font-weight: 700;
+  color: var(--navy); letter-spacing: -0.02em;
+}
+.logo-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+  border-radius: 9px; display: flex; align-items: center; justify-content: center;
+}
+.nav-right { display: flex; align-items: center; gap: 0.75rem; }
+.btn-outline {
+  padding: 0.5rem 1.25rem; border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill); background: transparent;
+  color: var(--navy); font-size: 0.85rem; font-weight: 500;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+  text-decoration: none; display: inline-block;
+}
+.btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+.btn-primary {
+  padding: 0.55rem 1.35rem;
+  background: var(--teal); border: none; border-radius: var(--radius-pill);
+  color: var(--white); font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+  text-decoration: none; display: inline-block;
+}
+.btn-primary:hover { background: var(--teal-dark); transform: translateY(-1px); }
+
+/* PAGE LAYOUT */
+.page {
+  padding: 88px 5% 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* PAGE HEADER */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+}
+.page-title h1 {
+  font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em;
+  color: var(--navy); margin-bottom: 0.2rem;
+  animation: none;
+}
+.page-title h1 em {
+  font-family: 'Lora', serif; font-style: italic;
+  font-weight: 400; color: var(--teal);
+}
+.page-title p { font-size: 0.85rem; color: var(--slate); font-weight: 300; }
+
+.add-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--teal); color: white; border: none;
+  border-radius: var(--radius-pill); padding: 0.65rem 1.4rem;
+  font-family: 'Sora', sans-serif; font-size: 0.875rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.add-btn:hover {
+  background: var(--teal-dark); transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(13,148,136,0.35);
+}
+.add-btn svg { width: 16px; height: 16px; }
+
+/* LAYOUT GRID */
+.cal-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* CALENDAR CARD */
+.cal-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+/* CALENDAR HEADER */
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+}
+.cal-nav-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1.5px solid var(--border); background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; color: var(--navy);
+}
+.cal-nav-btn:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-pale); }
+.cal-nav-btn svg { width: 16px; height: 16px; }
+.cal-month-label {
+  font-size: 1.1rem; font-weight: 700; color: var(--navy);
+  letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px;
+}
+.cal-month-label .year { color: var(--teal); font-family: 'Lora', serif; font-style: italic; font-weight: 400; }
+
+/* DAY NAMES */
+.cal-days-header {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  padding: 0.75rem 1rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.cal-day-name {
+  text-align: center; font-size: 0.72rem; font-weight: 700;
+  color: var(--slate-light); letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+/* GRID */
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 0; padding: 0.5rem;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-start; padding: 6px 4px;
+  border-radius: 10px; cursor: pointer; transition: all 0.15s;
+  position: relative; min-height: 52px;
+}
+.cal-cell:hover { background: var(--off-white); }
+.cal-cell.other-month { opacity: 0.3; pointer-events: none; }
+.cal-cell.today .day-num {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+  color: white; border-radius: 50%; width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+}
+.cal-cell.selected { background: var(--teal-pale); }
+.cal-cell.selected .day-num { color: var(--teal-dark); font-weight: 700; }
+.cal-cell.has-event::after {
+  content: ''; position: absolute; bottom: 5px;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--teal);
+}
+.cal-cell.today.has-event::after { background: white; }
+.day-num {
+  font-size: 0.82rem; font-weight: 500; color: var(--navy);
+  width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+}
+
+/* UPCOMING PANEL */
+.upcoming-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.upcoming-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.upcoming-header h3 {
+  font-size: 0.95rem; font-weight: 700; color: var(--navy);
+}
+.upcoming-header span {
+  font-size: 0.72rem; font-weight: 600; color: var(--teal);
+  background: var(--teal-pale); padding: 3px 10px; border-radius: var(--radius-pill);
+}
+.upcoming-list { padding: 0.75rem; }
+.appt-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 0.85rem; border-radius: var(--radius-sm);
+  transition: background 0.15s; cursor: pointer; position: relative;
+}
+.appt-item:hover { background: var(--off-white); }
+.appt-color {
+  width: 4px; border-radius: 99px; align-self: stretch;
+  flex-shrink: 0; min-height: 40px;
+}
+.appt-body { flex: 1; min-width: 0; }
+.appt-title { font-size: 0.85rem; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+.appt-meta { font-size: 0.75rem; color: var(--slate); display: flex; flex-direction: column; gap: 1px; }
+.appt-time { font-size: 0.72rem; font-weight: 600; color: var(--teal); }
+.appt-delete {
+  background: none; border: none; cursor: pointer; color: var(--slate-light);
+  padding: 4px; border-radius: 6px; transition: all 0.15s; flex-shrink: 0;
+  display: flex; opacity: 0;
+}
+.appt-item:hover .appt-delete { opacity: 1; }
+.appt-delete:hover { color: #EF4444; background: #FEF2F2; }
+.appt-delete svg { width: 14px; height: 14px; }
+
+.no-appts {
+  text-align: center; padding: 2rem 1rem;
+  color: var(--slate-light); font-size: 0.85rem;
+}
+.no-appts svg { width: 40px; height: 40px; color: var(--border); margin: 0 auto 0.75rem; display: block; }
+
+/* SELECTED DATE PANEL */
+.selected-day-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden; margin-top: 1.5rem;
+  display: none;
+}
+.selected-day-card.show { display: block; }
+.selected-day-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.selected-day-header h3 { font-size: 0.9rem; font-weight: 700; color: var(--navy); }
+.selected-day-list { padding: 0.75rem; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(12,31,63,0.45);
+  backdrop-filter: blur(4px); z-index: 500;
+  display: none; align-items: center; justify-content: center; padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: 20px;
+  box-shadow: var(--shadow-lg); padding: 2rem;
+  width: 100%; max-width: 440px;
+  animation: slideUp 0.25s ease;
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.modal-header h2 {
+  font-size: 1.2rem; font-weight: 700; color: var(--navy);
+  animation: none;
+}
+.modal-close {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--slate); transition: all 0.15s;
+}
+.modal-close:hover { border-color: #EF4444; color: #EF4444; }
+.modal-close svg { width: 14px; height: 14px; }
+
+.form-group { margin-bottom: 1rem; }
+.form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--navy); margin-bottom: 0.4rem; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 0.7rem 1rem;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-family: 'Sora', sans-serif; font-size: 0.88rem; color: var(--navy);
+  background: var(--white); outline: none; transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,148,136,0.1);
+}
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+/* COLOR PICKER */
+.color-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+.color-opt {
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  border: 2.5px solid transparent; transition: all 0.15s;
+}
+.color-opt:hover, .color-opt.selected { border-color: var(--navy); transform: scale(1.15); }
+
+.modal-footer { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-cancel {
+  flex: 1; padding: 0.75rem;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  background: none; font-family: 'Sora', sans-serif; font-size: 0.88rem;
+  font-weight: 500; color: var(--slate); cursor: pointer; transition: all 0.2s;
+}
+.btn-cancel:hover { border-color: var(--slate); color: var(--navy); }
+.btn-save {
+  flex: 2; padding: 0.75rem;
+  background: var(--teal); border: none; border-radius: var(--radius-sm);
+  font-family: 'Sora', sans-serif; font-size: 0.88rem; font-weight: 600;
+  color: white; cursor: pointer; transition: all 0.2s;
+}
+.btn-save:hover { background: var(--teal-dark); }
+
+/* TYPE BADGES */
+.type-badge {
+  display: inline-block; font-size: 0.68rem; font-weight: 700;
+  padding: 2px 8px; border-radius: var(--radius-pill); text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--navy); color: white; padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-pill); font-size: 0.85rem; font-weight: 500;
+  z-index: 999; transition: transform 0.3s ease; box-shadow: var(--shadow-lg);
+  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast svg { width: 16px; height: 16px; color: var(--teal-light); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 900px) {
+  .cal-layout { grid-template-columns: 1fr; }
+  .cal-cell { min-height: 44px; }
+}
+@media (max-width: 600px) {
+  .page { padding: 80px 4% 3rem; }
+  .page-header { flex-direction: column; align-items: flex-start; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round">
+        <path d="M12 4v4m0 8v4M4 12h4m8 0h4"/>
+        <rect x="8" y="8" width="8" height="8" rx="2"/>
+      </svg>
+    </div>
+    Healthmate
+  </a>
+  <div class="nav-right">
+    <a href="index.html" class="btn-outline">← Home</a>
+    <a href="login.html" class="btn-primary">Log in</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="page-title">
+      <h1>My <em>Calendar</em></h1>
+      <p>Track and manage all your health appointments in one place.</p>
+    </div>
+    <button class="add-btn" onclick="openModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Appointment
+    </button>
+  </div>
+
+  <div class="cal-layout">
+
+    <!-- CALENDAR -->
+    <div>
+      <div class="cal-card">
+        <div class="cal-header">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="cal-month-label">
+            <span id="month-name">March</span>
+            <span class="year" id="year-name">2026</span>
+          </div>
+          <button class="cal-nav-btn" onclick="changeMonth(1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="cal-days-header">
+          <div class="cal-day-name">Sun</div>
+          <div class="cal-day-name">Mon</div>
+          <div class="cal-day-name">Tue</div>
+          <div class="cal-day-name">Wed</div>
+          <div class="cal-day-name">Thu</div>
+          <div class="cal-day-name">Fri</div>
+          <div class="cal-day-name">Sat</div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+
+      <!-- SELECTED DAY APPOINTMENTS -->
+      <div class="selected-day-card" id="selected-day-card">
+        <div class="selected-day-header">
+          <h3 id="selected-day-title">Appointments</h3>
+          <button class="add-btn" style="padding:0.45rem 1rem;font-size:0.78rem;" onclick="openModal(selectedDateStr)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add
+          </button>
+        </div>
+        <div class="selected-day-list" id="selected-day-list"></div>
+      </div>
+    </div>
+
+    <!-- UPCOMING SIDEBAR -->
+    <div class="upcoming-card">
+      <div class="upcoming-header">
+        <h3>Upcoming</h3>
+        <span id="upcoming-count">0 appointments</span>
+      </div>
+      <div class="upcoming-list" id="upcoming-list">
+        <div class="no-appts">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          No upcoming appointments.<br>Click <strong>Add Appointment</strong> to get started.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD APPOINTMENT MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Appointment</h2>
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Appointment title *</label>
+      <input class="form-input" type="text" id="appt-title" placeholder="e.g. GP Check-up, Dentist, Physio…"/>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date *</label>
+        <input class="form-input" type="date" id="appt-date"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Time *</label>
+        <input class="form-input" type="time" id="appt-time"/>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="appt-type">
+          <option value="GP">General Practice</option>
+          <option value="Dentist">Dentist</option>
+          <option value="Specialist">Specialist</option>
+          <option value="Physio">Physiotherapy</option>
+          <option value="Mental Health">Mental Health</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Provider / Clinic</label>
+        <input class="form-input" type="text" id="appt-provider" placeholder="Doctor or clinic name"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="appt-notes" placeholder="Add any notes, reminders, or questions…"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Colour label</label>
+      <div class="color-picker" id="color-picker">
+        <div class="color-opt selected" data-color="#0D9488" style="background:#0D9488;" onclick="selectColor(this)"></div>
+        <div class="color-opt" data-color="#2563EB" style="background:#2563EB;" onclick="selectColor(this)"></div>
+        <div class="color-opt" data-color="#7C3AED" style="background:#7C3AED;" onclick="selectColor(this)"></div>
+        <div class="color-opt" data-color="#DB2777" style="background:#DB2777;" onclick="selectColor(this)"></div>
+        <div class="color-opt" data-color="#EA580C" style="background:#EA580C;" onclick="selectColor(this)"></div>
+        <div class="color-opt" data-color="#D97706" style="background:#D97706;" onclick="selectColor(this)"></div>
+        <div class="color-opt" data-color="#059669" style="background:#059669;" onclick="selectColor(this)"></div>
+        <div class="color-opt" data-color="#64748B" style="background:#64748B;" onclick="selectColor(this)"></div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveAppointment()">Save Appointment</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg">Appointment saved!</span>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────
+let currentDate = new Date();
+let currentYear = currentDate.getFullYear();
+let currentMonth = currentDate.getMonth();
+let selectedDate = null;
+let selectedDateStr = null;
+let selectedColor = '#0D9488';
+
+// Load appointments from localStorage
+function loadAppts() {
+  try { return JSON.parse(localStorage.getItem('hm_appointments') || '[]'); }
+  catch { return []; }
+}
+function saveAppts(appts) {
+  localStorage.setItem('hm_appointments', JSON.stringify(appts));
+}
+
+// ─── CALENDAR ────────────────────────────────────────────────
+const MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+
+function renderCalendar() {
+  document.getElementById('month-name').textContent = MONTHS[currentMonth];
+  document.getElementById('year-name').textContent = currentYear;
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const daysInPrev = new Date(currentYear, currentMonth, 0).getDate();
+  const today = new Date();
+  const appts = loadAppts();
+
+  // Previous month days
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const cell = makeCell(daysInPrev - i, currentYear, currentMonth - 1, true, appts);
+    grid.appendChild(cell);
+  }
+  // Current month days
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = d === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+    const cell = makeCell(d, currentYear, currentMonth, false, appts, isToday);
+    grid.appendChild(cell);
+  }
+  // Next month filler
+  const total = firstDay + daysInMonth;
+  const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let d = 1; d <= remaining; d++) {
+    const cell = makeCell(d, currentYear, currentMonth + 1, true, appts);
+    grid.appendChild(cell);
+  }
+}
+
+function makeCell(day, year, month, otherMonth, appts, isToday = false) {
+  const cell = document.createElement('div');
+  cell.className = 'cal-cell' + (otherMonth ? ' other-month' : '') + (isToday ? ' today' : '');
+
+  const dateStr = `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const hasEvent = appts.some(a => a.date === dateStr);
+  if (hasEvent) cell.classList.add('has-event');
+  if (selectedDateStr === dateStr) cell.classList.add('selected');
+
+  const num = document.createElement('div');
+  num.className = 'day-num';
+  num.textContent = day;
+  cell.appendChild(num);
+
+  if (!otherMonth) {
+    cell.addEventListener('click', () => selectDay(dateStr, day));
+  }
+  return cell;
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  renderCalendar();
+  if (selectedDateStr) {
+    const [sy, sm] = selectedDateStr.split('-').map(Number);
+    if (sm - 1 !== currentMonth || sy !== currentYear) {
+      clearSelectedDay();
+    }
+  }
+}
+
+function selectDay(dateStr, day) {
+  selectedDateStr = dateStr;
+  renderCalendar();
+  renderSelectedDay(dateStr);
+}
+
+function clearSelectedDay() {
+  selectedDateStr = null;
+  document.getElementById('selected-day-card').classList.remove('show');
+}
+
+function renderSelectedDay(dateStr) {
+  const card = document.getElementById('selected-day-card');
+  const list = document.getElementById('selected-day-list');
+  const title = document.getElementById('selected-day-title');
+  const appts = loadAppts().filter(a => a.date === dateStr);
+
+  const d = new Date(dateStr + 'T00:00:00');
+  title.textContent = d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  if (appts.length === 0) {
+    list.innerHTML = `<div class="no-appts" style="padding:1.25rem 1rem;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="width:32px;height:32px;color:var(--border);margin:0 auto 0.5rem;display:block;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      No appointments on this day.</div>`;
+  } else {
+    list.innerHTML = appts.map(a => apptHTML(a)).join('');
+  }
+  card.classList.add('show');
+}
+
+// ─── UPCOMING ────────────────────────────────────────────────
+function renderUpcoming() {
+  const list = document.getElementById('upcoming-list');
+  const countEl = document.getElementById('upcoming-count');
+  const today = new Date().toISOString().split('T')[0];
+  const appts = loadAppts()
+    .filter(a => a.date >= today)
+    .sort((a, b) => (a.date + a.time) > (b.date + b.time) ? 1 : -1)
+    .slice(0, 8);
+
+  countEl.textContent = appts.length + (appts.length === 1 ? ' appointment' : ' appointments');
+
+  if (appts.length === 0) {
+    list.innerHTML = `<div class="no-appts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      No upcoming appointments.<br>Click <strong>Add Appointment</strong> to get started.
+    </div>`;
+  } else {
+    list.innerHTML = appts.map(a => apptHTML(a)).join('');
+  }
+}
+
+function apptHTML(a) {
+  const d = new Date(a.date + 'T00:00:00');
+  const dateLabel = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+  const timeLabel = a.time ? formatTime(a.time) : 'Time TBC';
+  return `<div class="appt-item">
+    <div class="appt-color" style="background:${a.color || '#0D9488'};"></div>
+    <div class="appt-body">
+      <div class="appt-title">${a.title}</div>
+      <div class="appt-meta">
+        <span class="appt-time">${timeLabel} · ${dateLabel}</span>
+        ${a.provider ? `<span>${a.provider}</span>` : ''}
+        ${a.type ? `<span>${a.type}</span>` : ''}
+      </div>
+    </div>
+    <button class="appt-delete" onclick="deleteAppt('${a.id}', event)" title="Delete">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    </button>
+  </div>`;
+}
+
+function formatTime(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return `${hour}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+// ─── MODAL ───────────────────────────────────────────────────
+function openModal(prefillDate) {
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('appt-title').value = '';
+  document.getElementById('appt-time').value = '';
+  document.getElementById('appt-provider').value = '';
+  document.getElementById('appt-notes').value = '';
+  document.getElementById('appt-type').value = 'GP';
+  document.querySelectorAll('.color-opt').forEach(el => el.classList.remove('selected'));
+  document.querySelector('.color-opt[data-color="#0D9488"]').classList.add('selected');
+  selectedColor = '#0D9488';
+
+  const dateInput = document.getElementById('appt-date');
+  if (prefillDate) {
+    dateInput.value = prefillDate;
+  } else if (selectedDateStr) {
+    dateInput.value = selectedDateStr;
+  } else {
+    dateInput.value = new Date().toISOString().split('T')[0];
+  }
+  setTimeout(() => document.getElementById('appt-title').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function selectColor(el) {
+  document.querySelectorAll('.color-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedColor = el.dataset.color;
+}
+
+function saveAppointment() {
+  const title = document.getElementById('appt-title').value.trim();
+  const date = document.getElementById('appt-date').value;
+  const time = document.getElementById('appt-time').value;
+
+  if (!title) { document.getElementById('appt-title').focus(); document.getElementById('appt-title').style.borderColor = '#EF4444'; return; }
+  if (!date) { document.getElementById('appt-date').focus(); return; }
+
+  const appt = {
+    id: Date.now().toString(),
+    title,
+    date,
+    time,
+    type: document.getElementById('appt-type').value,
+    provider: document.getElementById('appt-provider').value.trim(),
+    notes: document.getElementById('appt-notes').value.trim(),
+    color: selectedColor,
+  };
+
+  const appts = loadAppts();
+  appts.push(appt);
+  saveAppts(appts);
+
+  closeModal();
+  renderCalendar();
+  renderUpcoming();
+  if (selectedDateStr === date) renderSelectedDay(date);
+  else if (date) { selectedDateStr = date; renderCalendar(); renderSelectedDay(date); }
+
+  showToast('Appointment saved!');
+}
+
+function deleteAppt(id, e) {
+  e.stopPropagation();
+  const appts = loadAppts().filter(a => a.id !== id);
+  saveAppts(appts);
+  renderCalendar();
+  renderUpcoming();
+  if (selectedDateStr) renderSelectedDay(selectedDateStr);
+  showToast('Appointment removed.');
+}
+
+// ─── TOAST ───────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── KEYBOARD ────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ─── INIT ────────────────────────────────────────────────────
+renderCalendar();
+renderUpcoming();
+</script>
+</body>
+</html>
